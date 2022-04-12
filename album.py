@@ -1,8 +1,6 @@
 from tkinter import *
 from tkinter import ttk
 
-from numpy import select
-
 global id_count
 
 try:
