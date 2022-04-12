@@ -43,11 +43,11 @@ def read_values(pick):
                     list_album_screen.insert('', END, values=values)
                     if box_name.get().upper() in values[1].upper():
                         list_box_name.insert('', END, values=values)
-                    if int(box_year.get()) > int(values[2]) and radio_ano.get() == 1:
+                    if int(box_year.get()) >= int(values[2]) and radio_ano.get() == 1:
                         list_box_year.insert('', END, values=values)
                     elif int(box_year.get()) == int(values[2]) and radio_ano.get() == 2:
                         list_box_year.insert('', END, values=values)
-                    elif int(box_year.get()) < int(values[2]) and radio_ano.get() == 3:
+                    elif int(box_year.get()) <= int(values[2]) and radio_ano.get() == 3:
                         list_box_year.insert('', END, values=values)
             except:
                 pass
