@@ -6,4 +6,4 @@ Na primeira e segunda versão foi pedido um álbum de música usando a interface
 
 Na terceira versão foi pedido para separar o código em 3 módulos: GUI (Interface Gráfica), Domain (Regras de Negócio) e DB (Banco de Dados).
 
-Na quarta e último versão foi pedido para alterar a forma de salvamento de dados, ao invés de usar um arquivo .txt, passaríamos a utilizar JSON. 
+Na quarta e última versão foi pedido para alterar a forma de salvamento de dados, ao invés de usar um arquivo .txt, passaríamos a utilizar JSON. 
