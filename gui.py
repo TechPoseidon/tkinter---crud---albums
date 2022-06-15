@@ -3,7 +3,14 @@ from tkinter import ttk
 from domain import *
 
 
-def main():
+def head(screen, text):
+    head = Label(screen, text=text, fg='black',
+                 height='2', font=("Roboto", "20", "bold"), bg='#6BACBF')
+    head.pack(pady=25)
+    return(head)
+
+
+def __main__():
     global bgcolor, cursor, activebgcolor
 
     bgcolor = "#6BACBF"
@@ -24,6 +31,9 @@ def screen():
     app_width = str(int(31.62 * (screen_width//100)))
     app_height = str(int(70 * (screen_height//100)))
 
+    global val_pady
+    val_pady = int(app_height)*(10.5/100)
+
     x = int((int(screen_width) / 2) - (int(app_width) / 2))
     y = int((int(screen_height) / 2) - (int(app_height) / 2))
 
@@ -33,10 +43,20 @@ def screen():
     class_screen.resizable(True, True)
 
     class_screen_button = Button(class_screen, text='Albúm de Música', fg='black', font=(
-        "Roboto", "20", "bold"), bg=bgcolor, cursor=cursor, relief='flat', activebackground=bgcolor, activeforeground="black", command=lambda: navigation(class_screen_button, home_screen(), 0))
-    class_screen_button.pack(pady=int(app_height)/2.215)
+        "Roboto", "20", "bold"), bg=bgcolor, cursor=cursor, relief='flat', activebackground=bgcolor, activeforeground="black", command=lambda: navigation(class_screen_button, home_screen()))
+    class_screen_button.pack(fill="both", expand=True)
 
     return class_screen
+
+
+def buttom_style(screen, texto: str, back_to, bgcolor, actbg):
+    button = Button(screen, text=texto,
+                    width='10', bg=bgcolor, fg='black', cursor="hand2", command=back_to, relief="solid", activebackground=actbg, activeforeground="white")
+    if screen_height < 1024:
+        button.pack()
+    else:
+        button.pack(side="bottom", pady=val_pady)
+    return button
 
 
 def home_screen():
@@ -46,19 +66,19 @@ def home_screen():
     head(home_frame, "Álbum de Música")
 
     new_album_buttom = Button(home_frame, text="Novo Albúm",  width=int(int(app_width)/23),
-                              bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: navigation(home_frame, register_screen(), 0), relief="solid", activebackground=activebgcolor, activeforeground="white")
-    new_album_buttom.pack(pady=int(app_height)/70)
+                              bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: navigation(home_frame, register_screen()), relief="solid", activebackground=activebgcolor, activeforeground="white")
+    new_album_buttom.pack(pady=int(app_height)/(int(app_height)/10))
 
     my_albums_buttom = Button(home_frame, text="Meus Albúms",  width=int(int(app_width)/23),
                               bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor, command=lambda: verify_none(home_frame, none_album_screen(0), list_albums_screen(0, 0, 0)), relief="solid", activebackground=activebgcolor, activeforeground="white")
-    my_albums_buttom.pack(pady=int(app_height)/70)
+    my_albums_buttom.pack(pady=int(app_height)/(int(app_height)/10))
 
     search_albums_buttom = Button(home_frame, text="Buscar Albúm",  width=int(int(app_width)/23),
                                   bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: verify_none(home_frame, none_album_screen(1), main_search_screen()), relief="solid", activebackground=activebgcolor, activeforeground="white")
-    search_albums_buttom.pack(pady=int(app_height)/70)
+    search_albums_buttom.pack(pady=int(app_height)/(int(app_height)/10))
 
     buttom_style(home_frame, "Voltar", lambda: navigation(
-        home_frame, class_screen_button, app_height), app_height, 7, bgcolor, activebgcolor)
+        home_frame, class_screen_button), bgcolor, activebgcolor)
     return home_frame
 
 
@@ -122,8 +142,8 @@ def register_screen():
     lbl.configure(text="")
     lbl.pack(pady=int(app_height)/140)
 
-    buttom_style(register_frame, "Voltar", lambda: navigation(register_frame, home_frame, 0),
-                 app_height, 350, bgcolor, activebgcolor)
+    buttom_style(register_frame, "Voltar", lambda: navigation(
+        register_frame, home_frame), bgcolor, activebgcolor)
     return register_frame
 
 
@@ -140,7 +160,7 @@ def none_album_screen(pick):
         head(none_album_frame, "Buscar Álbum")
     label.pack(pady=int(app_height)/70)
     buttom_style(none_album_frame, "Voltar", lambda: navigation(
-        none_album_frame, home_frame, 0), app_height, 7, bgcolor, activebgcolor)
+        none_album_frame, home_frame), bgcolor, activebgcolor)
     return none_album_frame
 
 
@@ -179,15 +199,17 @@ def list_albums_screen(pick, combobox, radio_year):
                     rowheight=30, fieldbackground=bgcolor)
     style.map("Treeview", background=[
         ('selected', activebgcolor)], foreground=[('selected', "black")])
-    buttom_style(list_album_frame, "Remover", lambda: delete_treeview_register(list_album_frame),
-                 app_height, 200, activebgcolor, bgcolor)
+
     if pick != 0:
-        buttom_style(list_album_frame, "Voltar", lambda: navigation(list_album_frame, search_by_frame, 0),
-                     app_height, 200, activebgcolor, bgcolor)
+        buttom_style(list_album_frame, "Voltar", lambda: navigation(list_album_frame, search_by_frame),
+                     activebgcolor, bgcolor)
     else:
-        buttom_style(list_album_frame, "Voltar", lambda: navigation(list_album_frame, home_frame, 0),
-                     app_height, 200, activebgcolor, bgcolor)
-    catch_info(pick, list_album_frame, combobox, radio_year)
+        buttom_style(list_album_frame, "Voltar", lambda: navigation(list_album_frame, home_frame),
+                     activebgcolor, bgcolor)
+    remove = Button(list_album_frame, text="Remover",
+                    width='10', bg=activebgcolor, fg='black', cursor="hand2", command=lambda: delete_treeview_register(list_album_frame), relief="solid", activebackground=bgcolor, activeforeground="white")
+    remove.pack(side="top")
+    catch_info(pick, list_album_frame, combobox, radio_year, END)
     return list_album_frame
 
 
@@ -198,15 +220,15 @@ def main_search_screen():
     head(search_screen_frame, "Buscar Álbum")
 
     search_artist_button = Button(search_screen_frame, text="Por Artista",  width='20',
-                                  bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: navigation(search_screen_frame, search_by_screen(0), 0), relief="solid", activebackground=activebgcolor, activeforeground="white")
+                                  bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: navigation(search_screen_frame, search_by_screen(0)), relief="solid", activebackground=activebgcolor, activeforeground="white")
     search_artist_button.pack(pady=int(app_height)/70)
 
     search_year_button = Button(search_screen_frame, text="Por Ano",  width='20',
-                                bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: navigation(search_screen_frame, search_by_screen(1), 0), relief="solid", activebackground=activebgcolor, activeforeground="white")
+                                bg=bgcolor, fg='black', bd=3, font=("Roboto", "14", "bold"), cursor=cursor,  command=lambda: navigation(search_screen_frame, search_by_screen(1)), relief="solid", activebackground=activebgcolor, activeforeground="white")
     search_year_button.pack(pady=int(app_height)/70)
 
-    buttom_style(search_screen_frame, "Voltar", lambda: navigation(search_screen_frame, home_frame, 0),
-                 app_height, 7, bgcolor, activebgcolor)
+    buttom_style(search_screen_frame, "Voltar", lambda: navigation(search_screen_frame, home_frame),
+                 bgcolor, activebgcolor)
     return search_screen_frame
 
 
@@ -218,11 +240,11 @@ def search_by_screen(pick):
 
     if pick == 0:
         head(search_by_frame, "Buscar Por Artista")
-        box_artist = ttk.Combobox(search_by_frame, values=catch_info(1, 0, 0, 0),
+        box_artist = ttk.Combobox(search_by_frame, values=catch_info(1, 0, 0, 0, END),
                                   width="13", font=("Roboto", "10", "bold"))
         box_artist.pack(pady=int(app_height)/70)
         box_artist_button = Button(search_by_frame, text="Pesquisar",
-                                   width='8', bg=bgcolor, fg='black', cursor=cursor, font=("Roboto", "9", "bold"), command=lambda: search(pick, box_artist, lbl2, search_by_frame, list_albums_screen, 0), relief="solid", activebackground=activebgcolor, activeforeground="white")
+                                   width='8', bg=bgcolor, fg='black', cursor=cursor, font=("Roboto", "9", "bold"), command=lambda: search(pick, box_artist, lbl2, search_by_frame, list_albums_screen, 0, END), relief="solid", activebackground=activebgcolor, activeforeground="white")
         box_artist_button.pack(pady=int(app_height)/70)
 
     elif pick == 1:
@@ -241,17 +263,17 @@ def search_by_screen(pick):
         box_r2.select()
 
         box_year = ttk.Combobox(
-            search_by_frame, values=catch_info(2, 0, 0, 0), width="8", font=("Roboto", "11", "bold"))
+            search_by_frame, values=catch_info(2, 0, 0, 0, END), width="8", font=("Roboto", "11", "bold"))
         box_year.pack(pady=int(app_height)/70)
 
         box_year_button = Button(search_by_frame, text="Pesquisar",
-                                 width='8', bg=bgcolor, fg='black', cursor=cursor, font=("Roboto", "9", "bold"), command=lambda: search(pick, box_year, lbl2, search_by_frame, list_albums_screen, radio_year), relief="solid", activebackground=activebgcolor, activeforeground="white")
+                                 width='8', bg=bgcolor, fg='black', cursor=cursor, font=("Roboto", "9", "bold"), command=lambda: search(pick, box_year, lbl2, search_by_frame, list_albums_screen, radio_year, END), relief="solid", activebackground=activebgcolor, activeforeground="white")
         box_year_button.pack(pady=int(app_height)/70)
 
     lbl2.pack(pady=int(app_height)/70)
-    buttom_style(search_by_frame, "Voltar", lambda: navigation(search_by_frame, search_screen_frame, 0),
-                 app_height, 15, bgcolor, activebgcolor)
+    buttom_style(search_by_frame, "Voltar", lambda: navigation(search_by_frame, search_screen_frame),
+                 bgcolor, activebgcolor)
     return search_by_frame
 
 
-main()
+__main__()

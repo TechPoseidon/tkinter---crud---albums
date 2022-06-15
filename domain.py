@@ -1,37 +1,17 @@
-from tkinter import *
-from db import *
+from db_json import *
 
 
-def head(screen, text):
-    head = Label(screen, text=text, fg='black',
-                 height='2', font=("Roboto", "20", "bold"), bg='#6BACBF')
-    head.pack(pady=25)
-    return(head)
-
-
-def navigation(screen_forget, screen_pack, app_height):
+def navigation(screen_forget, screen_pack):
     screen_forget.pack_forget()
-    if type(screen_pack) == Button:
-        screen_pack.pack(pady=int(app_height)/2.215)
-    else:
-        screen_pack.pack(fill="both", expand=True)
-
-
-def buttom_style(screen, texto: str, back_to, app_height, y, bgcolor, actbg):
-    button = Button(screen, text=texto,
-                    width='10', bg=bgcolor, fg='black', cursor="hand2", command=back_to, relief="solid", activebackground=actbg, activeforeground="white")
-    button.pack(pady=int(app_height)/y)
-    return button
+    screen_pack.pack(fill="both", expand=True)
 
 
 def id_controller():
     global id_count
-
     try:
-        file = open("albums_data.txt", 'r', encoding='utf-8')
-        objects = file.read().split('\n')
-        file.close()
-        id_count = int(objects[-2].split(",")[0])
+        objects = read_values()
+        id_count = len(objects)
+        print(id_count)
     except:
         id_count = 0
     return id_count
@@ -48,25 +28,26 @@ def save_info(album_name, release_year, artist_group_name, buttom_r, lbl, artist
     id_count = id_controller()
     try:
         id_count += 1
-        instance = str(id_count)+","+album_name.get().upper()+","+str(release_year.get())+","+artist_group_name.get().upper() + \
-            "," + buttom_r.get()
-        instance_values = instance.split(",")
-        for value in instance_values:
-            if value == "":
-                instance_values.remove(value)
-        if len(instance_values) != 5:
+        instance = {
+            "id": id_count,
+            "name": album_name.get().upper(),
+            "year": release_year.get(),
+            "artist": artist_group_name.get().upper(),
+            "buttom_r": buttom_r.get()
+        }
+        count = 0
+        for x in instance:
+            if instance[x] == "" or instance[x] == " ":
+                count += 1
+        if count > 0:
             lbl.configure(text="Algum dado incorreto, tente novamente!",
                           bg='#6BACBF', font=("Roboto,13,bold"))
-            delete_entry_values(
-                album_name, release_year, artist_group_name, artist_first_album_r1)
         else:
-            instance = ",".join(instance_values)
-            instance = instance + ("\n")
             write_values(instance)
             lbl.configure(text="Álbum cadastrado com sucesso!",
                           bg='#6BACBF', font=("Roboto,13,bold"))
-            delete_entry_values(
-                album_name, release_year, artist_group_name, artist_first_album_r1)
+        delete_entry_values(
+            album_name, release_year, artist_group_name, artist_first_album_r1)
     except:
         lbl.configure(text="Algum dado incorreto, tente novamente!",
                       bg='#6BACBF', font=("Roboto,13,bold"))
@@ -76,15 +57,13 @@ def save_info(album_name, release_year, artist_group_name, buttom_r, lbl, artist
 
 def verify_none(home_frame, none_album, list_album):
     try:
-        file = open("albums_data.txt", 'r', encoding='utf-8')
-        objects = file.read().split('\n')
-        file.close()
-        if len(objects[0]) == 0:
-            navigation(home_frame, none_album, 0)
+        objects = read_values()
+        if len(objects) == 0:
+            navigation(home_frame, none_album)
         else:
-            navigation(home_frame, list_album, 0)
+            navigation(home_frame, list_album)
     except:
-        navigation(home_frame, none_album, 0)
+        navigation(home_frame, none_album)
 
 
 def delete_treeview_register(list_album_frame):
@@ -93,7 +72,7 @@ def delete_treeview_register(list_album_frame):
         list_album_frame.delete(record)
 
 
-def catch_info(pick, list_album_frame, combobox, radio_ano):
+def catch_info(pick, list_album_frame, combobox, radio_ano, end):
     if pick != 0:
         global file_values
         file_values = []
@@ -101,35 +80,36 @@ def catch_info(pick, list_album_frame, combobox, radio_ano):
         objects = read_values()
         for instance in objects:
             try:
-                if len(instance[0]) == 0:
-                    pass
-                else:
-                    if pick == 1:
-                        file_values.append(instance.split(',')[1])
-                    elif pick == 2:
-                        file_values.append(int(instance.split(',')[2]))
+                if pick == 1:
+                    file_values.append(instance['name'])
+                elif pick == 2:
+                    file_values.append(instance['year'])
 
-                    values = instance.split(",")
-                    if pick == 0:
-                        list_album_frame.insert('', END, values=values)
-                    elif pick == 1 and combobox.get().upper() in values[1].upper():
-                        list_album_frame.insert('', END, values=values)
-                    elif pick == 2:
-                        if int(combobox.get()) >= int(values[2]) and radio_ano.get() == 1:
-                            list_album_frame.insert('', END, values=values)
-                        elif int(combobox.get()) == int(values[2]) and radio_ano.get() == 2:
-                            list_album_frame.insert('', END, values=values)
-                        elif int(combobox.get()) <= int(values[2]) and radio_ano.get() == 3:
-                            list_album_frame.insert('', END, values=values)
+                values = []
+                for value in instance.values():
+                    values.append(value)
+                print(values)
+                if pick == 0:
+                    list_album_frame.insert('', end, values=values)
+                elif pick == 1 and combobox.get().upper() in values[1].upper():
+                    list_album_frame.insert('', end, values=values)
+                elif pick == 2:
+                    if int(combobox.get()) >= int(values[2]) and radio_ano.get() == 1:
+                        list_album_frame.insert('', end, values=values)
+                    elif int(combobox.get()) == int(values[2]) and radio_ano.get() == 2:
+                        list_album_frame.insert('', end, values=values)
+                    elif int(combobox.get()) <= int(values[2]) and radio_ano.get() == 3:
+                        list_album_frame.insert('', end, values=values)
             except:
                 pass
     except:
         pass
     if pick != 0:
+        print((file_values))
         return sorted(set(file_values))
 
 
-def search(pick, combobox, lbl2, search_by_frame, list_albums_screen, radio_year):
+def search(pick, combobox, lbl2, search_by_frame, list_albums_screen, radio_year, end):
     if pick == 0:
         count = 0
         for name in file_values:
@@ -137,12 +117,13 @@ def search(pick, combobox, lbl2, search_by_frame, list_albums_screen, radio_year
                 count += 1
         if len(combobox.get()) != 0 and count > 0:
             lbl2.configure(text="")
-            navigation(search_by_frame, list_albums_screen(1, combobox, 0), 0)
-            combobox.delete(0, END)
+            navigation(search_by_frame, list_albums_screen(
+                1, combobox, 0))
+            combobox.delete(0, end)
         else:
             lbl2.configure(text="Nada encontrado!",
                            bg='#6BACBF', font=("Roboto,13,bold"))
-            combobox.delete(0, END)
+            combobox.delete(0, end)
     elif pick == 1:
         try:
             if len(combobox.get()) != 0:
@@ -156,16 +137,16 @@ def search(pick, combobox, lbl2, search_by_frame, list_albums_screen, radio_year
                 if count == 0 and int(combobox.get()) not in file_values:
                     lbl2.configure(text="Nada encontrado!",
                                    bg='#6BACBF', font=("Roboto,13,bold"))
-                    combobox.delete(0, END)
+                    combobox.delete(0, end)
                 else:
                     navigation(search_by_frame, list_albums_screen(
-                        2, combobox, radio_year), 0)
-                    combobox.delete(0, END)
+                        2, combobox, radio_year))
+                    combobox.delete(0, end)
             else:
                 lbl2.configure(text="Nada encontrado!",
                                bg='#6BACBF', font=("Roboto,13,bold"))
-                combobox.delete(0, END)
+                combobox.delete(0, end)
         except:
             lbl2.configure(text="Digite um ano válido!",
                            bg='#6BACBF', font=("Roboto,13,bold"))
-            combobox.delete(0, END)
+            combobox.delete(0, end)
